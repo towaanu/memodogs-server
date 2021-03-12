@@ -13,7 +13,7 @@ async fn main() {
     let index = warp::path::end().map(|| "Hello world !");
 
     let cors = warp::cors()
-        .allow_origin("http://localhost:3000")
+        .allow_origin(config.cors_origin.as_str())
         .allow_method("GET");
 
     let api = warp::path("api")

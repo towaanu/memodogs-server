@@ -8,5 +8,6 @@ docker run \
     -e "MEMODOGS_PORT=3030" \
     -e "MEMODOGS_IMAGES_PATH=assets/images" \
     -e "MEMODOGS_STATIC_BASE_URL=http://localhost:3030/static" \
+    -e "MEMODOGS_CORS_ORIGIN=http://localhost:3000" \
     -it memodogs:dev-server \
     /bin/sh

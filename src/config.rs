@@ -6,6 +6,7 @@ pub struct Config {
     pub port: u16,
     pub images_path: String,
     pub static_base_url: String,
+    pub cors_origin: String,
 }
 
 impl Default for Config {
@@ -14,6 +15,7 @@ impl Default for Config {
             port: 3030,
             images_path: String::from("assets/images"),
             static_base_url: Default::default(),
+            cors_origin: Default::default(),
         }
     }
 }
