@@ -47,7 +47,6 @@ mod handlers {
         })?;
 
         let image_urls: Vec<String> = dir_stream
-            .take(count)
             .filter_map(|entry| future::ready(entry.ok()))
             .filter(|entry| {
                 if let Some(ext) = entry.path().extension() {
@@ -56,6 +55,7 @@ mod handlers {
                     future::ready(false)
                 }
             })
+            .take(count)
             .map(|entry| entry.file_name().into_string().unwrap())
             .map(|file_name| {
                 let mut file_url = base_file_url.clone();

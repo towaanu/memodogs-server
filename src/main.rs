@@ -12,13 +12,19 @@ async fn main() {
     let config = Arc::new(config::get_config());
     let index = warp::path::end().map(|| "Hello world !");
 
+    let cors = warp::cors()
+        .allow_origin("http://localhost:3000")
+        .allow_method("GET");
+
     let api = warp::path("api")
         .and(warp::get())
         .and(routes::random_images::random_images(config.clone()))
+        .with(cors.clone())
         .with(warp::log("memodogs::api"));
 
     let images_static = warp::path("static")
         .and(warp::fs::dir(config.images_path.clone()))
+        .with(cors)
         .with(warp::log("memodogs::static"));
 
     let server_routes = index.or(api).or(images_static);
