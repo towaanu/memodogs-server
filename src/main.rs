@@ -14,7 +14,8 @@ async fn main() {
 
     let api = warp::path("api")
         .and(warp::get())
-        .and(routes::random_images::random_images(config.clone()));
+        .and(routes::random_images::random_images(config.clone()))
+        .with(warp::log("memodogs::api"));
 
     let server_routes = index.or(api);
 
