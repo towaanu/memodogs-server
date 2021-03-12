@@ -7,6 +7,6 @@ docker run \
     -e "RUST_LOG=debug" \
     -e "MEMODOGS_PORT=3030" \
     -e "MEMODOGS_IMAGES_PATH=assets/images" \
-    -e "MEMODOGS_STATIC_BASE_URL=http://localhost:3030/public" \
+    -e "MEMODOGS_STATIC_BASE_URL=http://localhost:3030/static" \
     -it memodogs:dev-server \
     /bin/sh

@@ -40,14 +40,15 @@ mod handlers {
                 .await
                 .map_err(|_e| warp::reject::not_found())?,
         );
+
+        let base_file_url = Url::parse(&config.static_base_url).map_err(|_| {
+            log::error!("Bad static images url {}", config.static_base_url);
+            warp::reject::not_found()
+        })?;
+
         let image_urls: Vec<String> = dir_stream
             .take(count)
-            .filter_map(|entry| async move {
-                match entry {
-                    Ok(file_entry) => Some(file_entry),
-                    Err(_) => None
-                }
-            })
+            .filter_map(|entry| future::ready(entry.ok()))
             .filter(|entry| {
                 if let Some(ext) = entry.path().extension() {
                     future::ready(ext == "jpg")
@@ -57,13 +58,12 @@ mod handlers {
             })
             .map(|entry| entry.file_name().into_string().unwrap())
             .map(|file_name| {
-                let file_url = Url::parse(&config.static_base_url).unwrap();
+                let mut file_url = base_file_url.clone();
                 file_url
-                    .join(&images_topic)
+                    .path_segments_mut()
                     .unwrap()
-                    .join(&file_name)
-                    .unwrap()
-                    .into_string()
+                    .extend(&[&images_topic, &file_name]);
+                file_url.into_string()
             })
             .collect()
             .await;

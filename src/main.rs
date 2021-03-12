@@ -17,7 +17,11 @@ async fn main() {
         .and(routes::random_images::random_images(config.clone()))
         .with(warp::log("memodogs::api"));
 
-    let server_routes = index.or(api);
+    let images_static = warp::path("static")
+        .and(warp::fs::dir(config.images_path.clone()))
+        .with(warp::log("memodogs::static"));
+
+    let server_routes = index.or(api).or(images_static);
 
     log::info!("Server running on port {}", config.port);
     warp::serve(server_routes)
