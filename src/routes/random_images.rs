@@ -42,8 +42,12 @@ mod handlers {
         );
         let image_urls: Vec<String> = dir_stream
             .take(count)
-            .filter(|entry| future::ready(entry.is_ok()))
-            .map(|entry| entry.unwrap())
+            .filter_map(|entry| async move {
+                match entry {
+                    Ok(file_entry) => Some(file_entry),
+                    Err(_) => None
+                }
+            })
             .filter(|entry| {
                 if let Some(ext) = entry.path().extension() {
                     future::ready(ext == "jpg")
