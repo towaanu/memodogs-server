@@ -12,7 +12,7 @@ pub fn random_images(
 pub fn random_images_list(
     config: Arc<Config>,
 ) -> impl Filter<Extract = (impl warp::Reply,), Error = warp::Rejection> + Clone {
-    warp::path!("random-images" / usize)
+    warp::path!("random-images" / String / usize)
         .and(warp::get())
         .and(with_config(config))
         .and_then(handlers::list_random_images)
@@ -22,7 +22,6 @@ mod handlers {
     use crate::config::Config;
     use futures::future;
     use futures::stream::StreamExt;
-    use std::convert::Infallible;
     use std::path::Path;
     use std::sync::Arc;
     use tokio::fs::read_dir;
@@ -30,12 +29,17 @@ mod handlers {
     use url::Url;
 
     pub async fn list_random_images(
+        images_topic: String,
         count: usize,
         config: Arc<Config>,
-    ) -> Result<impl warp::Reply, Infallible> {
-        let images_path = Path::new(&config.images_path).join("dogs");
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let images_path = Path::new(&config.images_path).join(&images_topic);
 
-        let dir_stream = ReadDirStream::new(read_dir(images_path).await.expect("Images not found"));
+        let dir_stream = ReadDirStream::new(
+            read_dir(images_path)
+                .await
+                .map_err(|_e| warp::reject::not_found())?,
+        );
         let image_urls: Vec<String> = dir_stream
             .take(count)
             .filter(|entry| future::ready(entry.is_ok()))
@@ -51,7 +55,7 @@ mod handlers {
             .map(|file_name| {
                 let file_url = Url::parse(&config.static_base_url).unwrap();
                 file_url
-                    .join("dogs")
+                    .join(&images_topic)
                     .unwrap()
                     .join(&file_name)
                     .unwrap()
