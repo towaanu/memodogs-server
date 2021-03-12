@@ -1,14 +1,25 @@
+use std::sync::Arc;
 use warp::Filter;
 
-mod config;
 mod app_logger;
+mod config;
+mod filters;
+mod routes;
 
 #[tokio::main]
 async fn main() {
     app_logger::init_logger();
-    let config = config::get_config();
+    let config = Arc::new(config::get_config());
     let index = warp::path::end().map(|| "Hello world !");
 
+    let api = warp::path("api")
+        .and(warp::get())
+        .and(routes::random_images::random_images(config.clone()));
+
+    let server_routes = index.or(api);
+
     log::info!("Server running on port {}", config.port);
-    warp::serve(index).run(([0, 0, 0, 0], config.port)).await;
+    warp::serve(server_routes)
+        .run(([0, 0, 0, 0], config.port))
+        .await;
 }

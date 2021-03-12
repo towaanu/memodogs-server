@@ -1,4 +1,4 @@
-use env_logger::{ Builder, Target };
+use env_logger::{Builder, Target};
 use log::LevelFilter;
 
 pub fn init_logger() {

@@ -1,14 +1,20 @@
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(default)]
 pub struct Config {
     pub port: u16,
+    pub images_path: String,
+    pub static_base_url: String,
 }
 
 impl Default for Config {
     fn default() -> Self {
-        Self { port: 3030 }
+        Self {
+            port: 3030,
+            images_path: String::from("assets/images"),
+            static_base_url: Default::default(),
+        }
     }
 }
 
